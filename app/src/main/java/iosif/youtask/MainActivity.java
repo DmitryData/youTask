@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        new SecondTask(this).execute();
         // получаем элемент ListView
         listView = (ListView) findViewById(R.id.list);
         editText = (EditText) findViewById(R.id.editText);
@@ -46,27 +47,7 @@ public class MainActivity extends AppCompatActivity {
         // устанавливаем адаптер
         listView.setAdapter(dataAdapter);
         loadText();
-        // создаем объект для управления БД
-        dbHelper = new DBHelper(this);
-        // подключаемся к БД
-        sqLiteDatabase = dbHelper.getWritableDatabase();
-        // Берем все данные из таблицы mytable и помещаем в c
-        Cursor c = sqLiteDatabase.query("mytable", null, null, null, null, null, null);
-        // ставим позицию курсора на первую строку
-        // если в выборке нет строк, вернется false
-        if (c.moveToFirst()) {
-            // определяем индекс столбцов по имени колонки
-            int nameColIndex = c.getColumnIndex("name");
-            do {
-                if ((c.getString(nameColIndex)) != null) {
-                    listData.add(c.getString(nameColIndex));
-                }
-                // переход на следующую строку
-                // а если следующей нет, то false - выходим из цикла
-            } while (c.moveToNext());
-        } else {
-        c.close();
-        }
+
 
                 button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,28 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    class DBHelper extends SQLiteOpenHelper {
-        public DBHelper(Context context) {
-            // конструктор суперкласса
-            super(context, "myDB", null, 1);
-        }
-
         @Override
-        public void onCreate(SQLiteDatabase db) {
-            // создаем таблицу с полями
-            db.execSQL("create table mytable ("
-                    + "id integer primary key autoincrement,"
-                    + "name text);");
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         // закрываем БД
@@ -157,8 +117,58 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return super.onContextItemSelected(item);
-
     }
+
+
+    class SecondTask extends AsyncTask<Void, Integer, Void> {
+        Context context;
+
+        public SecondTask(Context context) {
+            this.context = context;
+        }
+        @Override
+
+
+        protected Void doInBackground(Void... unused) {
+            // создаем объект для управления БД
+            dbHelper = new DBHelper(context);
+            // подключаемся к БД
+            sqLiteDatabase = dbHelper.getWritableDatabase();
+            // Берем все данные из таблицы mytable и помещаем в c
+            Cursor c = sqLiteDatabase.query("mytable", null, null, null, null, null, null);
+            // ставим позицию курсора на первую строку
+            // если в выборке нет строк, вернется false
+            if (c.moveToFirst()) {
+                // определяем индекс столбцов по имени колонки
+                int nameColIndex = c.getColumnIndex("name");
+                do {
+                    if ((c.getString(nameColIndex)) != null) {
+                        listData.add(c.getString(nameColIndex));
+                    }
+                    // переход на следующую строку
+                    // а если следующей нет, то false - выходим из цикла
+                } while (c.moveToNext());
+                c.close();
+            } else {
+                c.close();
+            }
+            return(null);
+        }
+
+
+
+        @Override
+        protected void onProgressUpdate(Integer... items) {
+        }
+
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            Toast.makeText(getApplicationContext(), "Задача завершена", Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
 }
 
 
