@@ -54,15 +54,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String s = editText.getText().toString();
-                listData.add(s);
+                String get_text = editText.getText().toString();
+                listData.add(get_text);
                 dataAdapter.notifyDataSetChanged();
                 //go to list end
                 listView.setSelection(listData.size());
                 ContentValues cv = new ContentValues();
                 // put data
-                cv.put("name", s);
-                sqLiteDatabase.insert("mytable", null, cv);
+                cv.put(getString(R.string.name_column), get_text);
+                sqLiteDatabase.insert(getString(R.string.table_name), null, cv);
                 editText.setText("");
             }
         });
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         // TODO Auto-generated method stub
         switch (v.getId()) {
             case R.id.button:
-                menu.add(0, 1, 0, "Clear and Quit");
+                menu.add(0, 1, 0, R.string.button_clear);
                 break;
         }
     }

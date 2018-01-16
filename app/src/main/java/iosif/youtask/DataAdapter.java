@@ -37,7 +37,7 @@ public class DataAdapter extends ArrayAdapter<ArrayList> {
             holder = (ViewHolder) convertView.getTag();
         }
         //задаем imageView, tvData
-        holder.imageView.setImageResource(R.drawable.ic_assignment_white_48dp);
+        holder.imageView.setImageResource(R.mipmap.ic_blacktask);
         holder.tvData.setText(position + 1 + ". " + list.get(position));
 
         return convertView;
