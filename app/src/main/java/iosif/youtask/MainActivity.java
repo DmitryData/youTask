@@ -20,7 +20,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<String> listData = new ArrayList<>();  //освной массив, передаваемый адаптеру
+    //create new array data for adapter
+    private ArrayList<String> listData = new ArrayList<>();
     DBHelper dbHelper;
     ListView listView;
     Button button;
@@ -35,16 +36,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         new SecondTask(this).execute();
-        // получаем элемент ListView
+        // find elements ListView
         listView = (ListView) findViewById(R.id.list);
         editText = (EditText) findViewById(R.id.editText);
         button = (Button) findViewById(R.id.button);
 
-        //создаем контекстное меню
+        //create context menu
         registerForContextMenu(button);
-        // создаем адаптер
+        // create adapter
         dataAdapter = new DataAdapter(this, R.layout.iosif, listData);
-        // устанавливаем адаптер
+        // set adapter
         listView.setAdapter(dataAdapter);
         loadText();
 
@@ -56,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
                 String s = editText.getText().toString();
                 listData.add(s);
                 dataAdapter.notifyDataSetChanged();
-                //переход в конец списка
+                //go to list end
                 listView.setSelection(listData.size());
                 ContentValues cv = new ContentValues();
-                // вставляем данные
+                // put data
                 cv.put("name", s);
                 sqLiteDatabase.insert("mytable", null, cv);
                 editText.setText("");
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
     protected void onDestroy() {
         super.onDestroy();
-        // закрываем БД
+        // close BD
         dbHelper.close();
         }
 
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         // TODO Auto-generated method stub
         switch (item.getItemId()) {
                 case 1:
-                // удаляем БД
+                // delete BD
                 sqLiteDatabase.delete("mytable", null, null);
                 finish();
                 break;
@@ -130,23 +131,23 @@ public class MainActivity extends AppCompatActivity {
 
 
         protected Void doInBackground(Void... unused) {
-            // создаем объект для управления БД
+            // create object for manage BD
             dbHelper = new DBHelper(context);
-            // подключаемся к БД
+            // connect to BD
             sqLiteDatabase = dbHelper.getWritableDatabase();
-            // Берем все данные из таблицы mytable и помещаем в c
+            // get data from from table mytable
             Cursor c = sqLiteDatabase.query("mytable", null, null, null, null, null, null);
-            // ставим позицию курсора на первую строку
-            // если в выборке нет строк, вернется false
+            // put position cursor on first line
+            // if in table, not rows return false
             if (c.moveToFirst()) {
-                // определяем индекс столбцов по имени колонки
+                // set index of columns by column name
                 int nameColIndex = c.getColumnIndex("name");
                 do {
                     if ((c.getString(nameColIndex)) != null) {
                         listData.add(c.getString(nameColIndex));
                     }
-                    // переход на следующую строку
-                    // а если следующей нет, то false - выходим из цикла
+                    // jump on nexy rows
+                    // and if next rows not - false - end cycle
                 } while (c.moveToNext());
                 c.close();
             } else {
